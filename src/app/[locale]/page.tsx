@@ -1,7 +1,9 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect, useRef } from "react";
 import { useTranslations } from "next-intl";
+import { useRouter } from "next/navigation";
+import { useAuth } from "@clerk/nextjs";
 import SearchFilters from "@/components/search-filters";
 import LeadCard from "@/components/lead-card";
 import { calculateLeadScore } from "@/lib/scoring";
@@ -9,14 +11,79 @@ import type { PlaceResult, LeadScoreBreakdown } from "@/types/lead";
 
 type ScoredPlace = { place: PlaceResult; score: LeadScoreBreakdown };
 
+const STORAGE_KEY = "lr-search-state";
+
+interface PersistedState {
+  results: ScoredPlace[];
+  sortBy: string;
+  industry: string;
+  city: string;
+  freeText: string;
+}
+
+function loadState(): PersistedState | null {
+  try {
+    const raw = sessionStorage.getItem(STORAGE_KEY);
+    if (!raw) return null;
+    return JSON.parse(raw);
+  } catch {
+    return null;
+  }
+}
+
+function saveState(state: PersistedState) {
+  try {
+    sessionStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+  } catch {
+    // sessionStorage full or unavailable
+  }
+}
+
 export default function SearchPage() {
   const t = useTranslations("lead");
   const tSort = useTranslations("sort");
+  const router = useRouter();
+  const { isSignedIn } = useAuth();
 
-  const [results, setResults] = useState<ScoredPlace[]>([]);
+  const cached = useRef(loadState());
+
+  const [results, setResults] = useState<ScoredPlace[]>(cached.current?.results ?? []);
   const [isLoading, setIsLoading] = useState(false);
-  const [hasSearched, setHasSearched] = useState(false);
-  const [sortBy, setSortBy] = useState("scoreDesc");
+  const [hasSearched, setHasSearched] = useState(!!cached.current?.results.length);
+  const [sortBy, setSortBy] = useState(cached.current?.sortBy ?? "scoreDesc");
+  const [savedIds, setSavedIds] = useState<Set<string>>(new Set());
+  const [savingId, setSavingId] = useState<string | null>(null);
+
+  // Filter state for persistence
+  const [filterIndustry, setFilterIndustry] = useState(cached.current?.industry ?? "");
+  const [filterCity, setFilterCity] = useState(cached.current?.city ?? "");
+  const [filterFreeText, setFilterFreeText] = useState(cached.current?.freeText ?? "");
+
+  // Fetch saved lead IDs on mount (if signed in)
+  useEffect(() => {
+    if (!isSignedIn) return;
+    fetch("/api/leads")
+      .then((r) => r.json())
+      .then((data) => {
+        if (data.leads) {
+          setSavedIds(new Set(data.leads.map((l: { placeId: string }) => l.placeId)));
+        }
+      })
+      .catch(() => {});
+  }, [isSignedIn]);
+
+  // Persist state on changes
+  useEffect(() => {
+    if (results.length > 0) {
+      saveState({
+        results,
+        sortBy,
+        industry: filterIndustry,
+        city: filterCity,
+        freeText: filterFreeText,
+      });
+    }
+  }, [results, sortBy, filterIndustry, filterCity, filterFreeText]);
 
   const handleSearch = useCallback(async (filters: { query: string; location: string }) => {
     setIsLoading(true);
@@ -41,7 +108,6 @@ export default function SearchPage() {
         score: calculateLeadScore(place),
       }));
 
-      // Default sort: score descending
       scored.sort((a, b) => b.score.total - a.score.total);
       setResults(scored);
     } catch (err) {
@@ -51,6 +117,47 @@ export default function SearchPage() {
       setIsLoading(false);
     }
   }, []);
+
+  const handleToggleSave = useCallback(async (place: PlaceResult) => {
+    if (!isSignedIn) {
+      router.push("/sign-in");
+      return;
+    }
+
+    setSavingId(place.id);
+    const isSaved = savedIds.has(place.id);
+
+    try {
+      if (isSaved) {
+        await fetch("/api/leads", {
+          method: "DELETE",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ placeId: place.id }),
+        });
+        setSavedIds((prev) => {
+          const next = new Set(prev);
+          next.delete(place.id);
+          return next;
+        });
+      } else {
+        const score = calculateLeadScore(place);
+        await fetch("/api/leads", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ place, leadScore: score.total }),
+        });
+        setSavedIds((prev) => new Set(prev).add(place.id));
+      }
+    } catch (err) {
+      console.error("Save/unsave failed:", err);
+    } finally {
+      setSavingId(null);
+    }
+  }, [isSignedIn, savedIds, router]);
+
+  const handleViewDetails = useCallback((place: PlaceResult) => {
+    router.push(`/lead/${place.id}`);
+  }, [router]);
 
   const sortedResults = [...results].sort((a, b) => {
     switch (sortBy) {
@@ -64,7 +171,18 @@ export default function SearchPage() {
 
   return (
     <div className="space-y-6">
-      <SearchFilters onSearch={handleSearch} isLoading={isLoading} />
+      <SearchFilters
+        onSearch={handleSearch}
+        isLoading={isLoading}
+        initialIndustry={filterIndustry}
+        initialCity={filterCity}
+        initialFreeText={filterFreeText}
+        onFilterChange={(industry, city, freeText) => {
+          setFilterIndustry(industry);
+          setFilterCity(city);
+          setFilterFreeText(freeText);
+        }}
+      />
 
       {/* Results header */}
       {hasSearched && !isLoading && (
@@ -104,6 +222,10 @@ export default function SearchPage() {
               key={place.id}
               place={place}
               score={score}
+              isSaved={savedIds.has(place.id)}
+              onToggleSave={handleToggleSave}
+              onViewDetails={handleViewDetails}
+              savingId={savingId}
             />
           ))}
         </div>

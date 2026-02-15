@@ -9,9 +9,13 @@ const isPublicRoute = createRouteMatcher([
   "/:locale",
   "/:locale/sign-in(.*)",
   "/:locale/sign-up(.*)",
+  "/:locale/lead(.*)",
   "/sign-in(.*)",
   "/sign-up(.*)",
+  "/lead(.*)",
   "/api/search(.*)",
+  "/api/lead(.*)",
+  "/api/photo(.*)",
   "/api/health(.*)",
 ]);
 

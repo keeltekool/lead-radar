@@ -7,6 +7,10 @@ import { INDUSTRIES, ESTONIAN_CITIES } from "@/data/industries";
 interface SearchFiltersProps {
   onSearch: (filters: { query: string; location: string }) => void;
   isLoading: boolean;
+  initialIndustry?: string;
+  initialCity?: string;
+  initialFreeText?: string;
+  onFilterChange?: (industry: string, city: string, freeText: string) => void;
 }
 
 const selectClasses =
@@ -17,13 +21,26 @@ const inputClasses =
 
 const labelClasses = "block text-xs font-medium text-slate-600 uppercase tracking-wide mb-1.5";
 
-export default function SearchFilters({ onSearch, isLoading }: SearchFiltersProps) {
+export default function SearchFilters({ onSearch, isLoading, initialIndustry = "", initialCity = "", initialFreeText = "", onFilterChange }: SearchFiltersProps) {
   const t = useTranslations("filters");
   const locale = useLocale();
 
-  const [industry, setIndustry] = useState("");
-  const [city, setCity] = useState("");
-  const [freeText, setFreeText] = useState("");
+  const [industry, setIndustry] = useState(initialIndustry);
+  const [city, setCity] = useState(initialCity);
+  const [freeText, setFreeText] = useState(initialFreeText);
+
+  const updateIndustry = (v: string) => {
+    setIndustry(v);
+    onFilterChange?.(v, city, freeText);
+  };
+  const updateCity = (v: string) => {
+    setCity(v);
+    onFilterChange?.(industry, v, freeText);
+  };
+  const updateFreeText = (v: string) => {
+    setFreeText(v);
+    onFilterChange?.(industry, city, v);
+  };
 
   const handleSearch = () => {
     const selectedIndustry = INDUSTRIES.find(i => i.id === industry);
@@ -55,7 +72,7 @@ export default function SearchFilters({ onSearch, isLoading }: SearchFiltersProp
             <label className={labelClasses}>{t("industry")}</label>
             <select
               value={industry}
-              onChange={(e) => setIndustry(e.target.value)}
+              onChange={(e) => updateIndustry(e.target.value)}
               className={selectClasses}
             >
               <option value="">{t("industryAll")}</option>
@@ -71,7 +88,7 @@ export default function SearchFilters({ onSearch, isLoading }: SearchFiltersProp
             <label className={labelClasses}>{t("location")}</label>
             <select
               value={city}
-              onChange={(e) => setCity(e.target.value)}
+              onChange={(e) => updateCity(e.target.value)}
               className={selectClasses}
             >
               <option value="">{t("locationAll")}</option>
@@ -86,7 +103,7 @@ export default function SearchFilters({ onSearch, isLoading }: SearchFiltersProp
             <input
               type="text"
               value={freeText}
-              onChange={(e) => setFreeText(e.target.value)}
+              onChange={(e) => updateFreeText(e.target.value)}
               onKeyDown={handleKeyDown}
               placeholder={t("freeSearchPlaceholder")}
               className={inputClasses}

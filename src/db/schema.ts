@@ -41,6 +41,9 @@ export const savedLeads = pgTable(
     // Full API response
     rawPlacesData: jsonb("raw_places_data"),
 
+    // Scraped data
+    emails: jsonb("emails").$type<string[]>(),
+
     // User data
     notes: text("notes"),
 

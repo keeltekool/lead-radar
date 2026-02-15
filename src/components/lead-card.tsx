@@ -42,21 +42,43 @@ export default function LeadCard({
   const t = useTranslations("lead");
   const isSaving = savingId === place.id;
   const typeBadge = TYPE_LABELS[place.primaryType || ""] || place.primaryTypeDisplayName?.text || place.primaryType || "";
+  const initial = (place.displayName?.text || "?")[0].toUpperCase();
+  let faviconUrl: string | null = null;
+  if (place.websiteUri) {
+    try {
+      const host = new URL(place.websiteUri).hostname;
+      faviconUrl = `https://www.google.com/s2/favicons?domain=${host}&sz=32`;
+    } catch { /* malformed URL — skip favicon */ }
+  }
 
   return (
     <div className="group rounded-xl border border-slate-200 bg-white shadow-card overflow-hidden transition-all duration-200 hover:border-amber-200 hover:shadow-card-hover hover:-translate-y-0.5">
       <div className="p-4 space-y-3">
-        {/* Header: Name + Score */}
+        {/* Header: Favicon/Initial + Name + Score */}
         <div className="flex items-start justify-between gap-3">
-          <div className="min-w-0 flex-1">
-            <h3 className="font-semibold text-slate-900 text-[15px] truncate">
-              {place.displayName?.text}
-            </h3>
+          <div className="flex items-start gap-2.5 min-w-0 flex-1">
+            {faviconUrl ? (
+              <img
+                src={faviconUrl}
+                alt=""
+                className="h-8 w-8 rounded-md bg-slate-100 shrink-0 mt-0.5"
+                loading="lazy"
+                onError={(e) => { e.currentTarget.style.display = "none"; e.currentTarget.nextElementSibling?.classList.remove("hidden"); }}
+              />
+            ) : null}
+            <div className={`h-8 w-8 rounded-md bg-amber-100 shrink-0 mt-0.5 flex items-center justify-center text-sm font-bold text-amber-700 ${faviconUrl ? "hidden" : ""}`}>
+              {initial}
+            </div>
+            <div className="min-w-0 flex-1">
+              <h3 className="font-semibold text-slate-900 text-[15px] truncate">
+                {place.displayName?.text}
+              </h3>
             {typeBadge && (
               <span className="inline-flex items-center rounded-badge bg-amber-100 px-2.5 py-0.5 text-[11px] font-medium text-amber-800 mt-1">
                 {typeBadge}
               </span>
             )}
+            </div>
           </div>
           {/* Score badge */}
           <div className={`flex flex-col items-center rounded-lg border px-3 py-1.5 ${getScoreBgColor(score.total)}`}>
