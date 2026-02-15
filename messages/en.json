@@ -1,0 +1,81 @@
+{
+  "nav": {
+    "search": "Search",
+    "saved": "Saved",
+    "signIn": "Sign In"
+  },
+  "filters": {
+    "location": "Location",
+    "locationAll": "All Estonia",
+    "industry": "Industry",
+    "industryAll": "All industries",
+    "freeSearch": "Free search",
+    "freeSearchPlaceholder": "Company name or keyword...",
+    "search": "Search",
+    "searching": "Searching...",
+    "sort": "Sort by",
+    "advanced": "Advanced filters",
+    "clearAdvanced": "Clear filters",
+    "hasWebsite": "Has website",
+    "ratingRange": "Rating",
+    "reviewCount": "Review count",
+    "scoreRange": "Lead Score"
+  },
+  "sort": {
+    "scoreDesc": "Score (highest)",
+    "ratingAsc": "Rating (lowest)",
+    "reviewsAsc": "Reviews (fewer)",
+    "reviewsDesc": "Reviews (more)"
+  },
+  "lead": {
+    "noWebsite": "No website",
+    "reviews": "{count} reviews",
+    "photos": "{count} photos",
+    "noResults": "No results found",
+    "noResultsHint": "Try a different industry or location",
+    "save": "Save",
+    "saved": "Saved",
+    "unsave": "Remove",
+    "score": "Lead Score",
+    "viewDetails": "View details",
+    "hasHours": "Opening hours",
+    "noHours": "No opening hours",
+    "phone": "Phone",
+    "website": "Website",
+    "address": "Address",
+    "rating": "Rating",
+    "type": "Type",
+    "status": "Status",
+    "operational": "Operational",
+    "closed": "Closed"
+  },
+  "detail": {
+    "scoreBreakdown": "Score breakdown",
+    "webPresence": "Web presence",
+    "profileCompleteness": "Profile completeness",
+    "reviewHealth": "Review health",
+    "contactability": "Contactability",
+    "serviceFit": "Service fit",
+    "pagespeed": "Website speed",
+    "performance": "Performance",
+    "seo": "SEO",
+    "accessibility": "Accessibility",
+    "emailsFound": "Emails found",
+    "noEmails": "No email found",
+    "socialMedia": "Social media",
+    "reviewAnalysis": "Review analysis",
+    "analyzing": "Analyzing...",
+    "generatePitch": "Generate pitch",
+    "pitch": "Sales pitch",
+    "loading": "Loading..."
+  },
+  "dashboard": {
+    "title": "Saved leads",
+    "empty": "No leads saved yet",
+    "emptyHint": "Search for businesses and save the best leads here",
+    "export": "Export CSV",
+    "filterByIndustry": "Filter by industry",
+    "filterByScore": "Filter by score",
+    "all": "All"
+  }
+}

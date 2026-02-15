@@ -1,0 +1,109 @@
+"use client";
+
+import { useState } from "react";
+import { useTranslations, useLocale } from "next-intl";
+import { INDUSTRIES, ESTONIAN_CITIES } from "@/data/industries";
+
+interface SearchFiltersProps {
+  onSearch: (filters: { query: string; location: string }) => void;
+  isLoading: boolean;
+}
+
+const selectClasses =
+  "flex h-10 w-full rounded-lg border border-amber-200 bg-white px-3 py-2.5 text-sm text-slate-800 focus:border-amber-500 focus:outline-none focus:ring-2 focus:ring-amber-500/30 disabled:cursor-not-allowed disabled:opacity-50 disabled:bg-slate-100";
+
+const inputClasses =
+  "flex h-10 w-full rounded-lg border border-amber-200 bg-white px-3 py-2.5 text-sm text-slate-800 placeholder:text-slate-400 focus:border-amber-500 focus:outline-none focus:ring-2 focus:ring-amber-500/30 disabled:cursor-not-allowed disabled:opacity-50";
+
+const labelClasses = "block text-xs font-medium text-slate-600 uppercase tracking-wide mb-1.5";
+
+export default function SearchFilters({ onSearch, isLoading }: SearchFiltersProps) {
+  const t = useTranslations("filters");
+  const locale = useLocale();
+
+  const [industry, setIndustry] = useState("");
+  const [city, setCity] = useState("");
+  const [freeText, setFreeText] = useState("");
+
+  const handleSearch = () => {
+    const selectedIndustry = INDUSTRIES.find(i => i.id === industry);
+    const selectedCity = ESTONIAN_CITIES.find(c => c.id === city);
+
+    let query = "";
+    if (freeText.trim()) {
+      query = freeText.trim();
+    } else if (selectedIndustry) {
+      query = locale === "et" ? selectedIndustry.searchTermEt : selectedIndustry.searchTermEn;
+    }
+
+    const location = selectedCity?.name || "";
+
+    if (!query && !location) return;
+
+    onSearch({ query, location });
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === "Enter") handleSearch();
+  };
+
+  return (
+    <div className="rounded-xl border border-slate-200 bg-white shadow-card">
+      <div className="p-5">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          <div>
+            <label className={labelClasses}>{t("industry")}</label>
+            <select
+              value={industry}
+              onChange={(e) => setIndustry(e.target.value)}
+              className={selectClasses}
+            >
+              <option value="">{t("industryAll")}</option>
+              {INDUSTRIES.map((ind) => (
+                <option key={ind.id} value={ind.id}>
+                  {locale === "et" ? ind.labelEt : ind.labelEn}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <div>
+            <label className={labelClasses}>{t("location")}</label>
+            <select
+              value={city}
+              onChange={(e) => setCity(e.target.value)}
+              className={selectClasses}
+            >
+              <option value="">{t("locationAll")}</option>
+              {ESTONIAN_CITIES.map((c) => (
+                <option key={c.id} value={c.id}>{c.name}</option>
+              ))}
+            </select>
+          </div>
+
+          <div>
+            <label className={labelClasses}>{t("freeSearch")}</label>
+            <input
+              type="text"
+              value={freeText}
+              onChange={(e) => setFreeText(e.target.value)}
+              onKeyDown={handleKeyDown}
+              placeholder={t("freeSearchPlaceholder")}
+              className={inputClasses}
+            />
+          </div>
+
+          <div className="flex items-end">
+            <button
+              onClick={handleSearch}
+              disabled={isLoading}
+              className="h-10 w-full rounded-lg bg-amber-900 px-6 text-sm font-semibold text-white transition-colors hover:bg-amber-800 active:bg-amber-950 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {isLoading ? t("searching") : t("search")}
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}

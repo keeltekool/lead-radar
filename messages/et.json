@@ -1,0 +1,81 @@
+{
+  "nav": {
+    "search": "Otsing",
+    "saved": "Salvestatud",
+    "signIn": "Logi sisse"
+  },
+  "filters": {
+    "location": "Asukoht",
+    "locationAll": "Kogu Eesti",
+    "industry": "Valdkond",
+    "industryAll": "Kõik valdkonnad",
+    "freeSearch": "Vabaotsing",
+    "freeSearchPlaceholder": "Ettevõtte nimi või märksõna...",
+    "search": "Otsi",
+    "searching": "Otsin...",
+    "sort": "Sorteeri",
+    "advanced": "Täpsem filter",
+    "clearAdvanced": "Tühjenda filtrid",
+    "hasWebsite": "Veebileht olemas",
+    "ratingRange": "Hinnang",
+    "reviewCount": "Arvustuste arv",
+    "scoreRange": "Lead Score"
+  },
+  "sort": {
+    "scoreDesc": "Score (kõrgeim)",
+    "ratingAsc": "Hinnang (madalaim)",
+    "reviewsAsc": "Arvustused (vähem)",
+    "reviewsDesc": "Arvustused (rohkem)"
+  },
+  "lead": {
+    "noWebsite": "Veebileht puudub",
+    "reviews": "{count} arvustust",
+    "photos": "{count} fotot",
+    "noResults": "Tulemusi ei leitud",
+    "noResultsHint": "Proovi teist valdkonda või asukohta",
+    "save": "Salvesta",
+    "saved": "Salvestatud",
+    "unsave": "Eemalda",
+    "score": "Lead Score",
+    "viewDetails": "Vaata detaile",
+    "hasHours": "Lahtiolekuajad",
+    "noHours": "Lahtiolekuajad puuduvad",
+    "phone": "Telefon",
+    "website": "Veebileht",
+    "address": "Aadress",
+    "rating": "Hinnang",
+    "type": "Tüüp",
+    "status": "Staatus",
+    "operational": "Tegutsev",
+    "closed": "Suletud"
+  },
+  "detail": {
+    "scoreBreakdown": "Score'i koosseis",
+    "webPresence": "Veebikuvand",
+    "profileCompleteness": "Profiili täidetus",
+    "reviewHealth": "Arvustuste tervis",
+    "contactability": "Kontakteeruvus",
+    "serviceFit": "Teenuse sobivus",
+    "pagespeed": "Veebilehe kiirus",
+    "performance": "Kiirus",
+    "seo": "SEO",
+    "accessibility": "Ligipääsetavus",
+    "emailsFound": "Leitud e-mailid",
+    "noEmails": "E-maili ei leitud",
+    "socialMedia": "Sotsiaalmeedia",
+    "reviewAnalysis": "Arvustuste analüüs",
+    "analyzing": "Analüüsin...",
+    "generatePitch": "Genereeri müügitekst",
+    "pitch": "Müügitekst",
+    "loading": "Laadin..."
+  },
+  "dashboard": {
+    "title": "Salvestatud leadid",
+    "empty": "Ühtegi leadi pole salvestatud",
+    "emptyHint": "Otsi ettevõtteid ja salvesta parimad leadid siia",
+    "export": "Ekspordi CSV",
+    "filterByIndustry": "Filtreeri valdkonna järgi",
+    "filterByScore": "Filtreeri score'i järgi",
+    "all": "Kõik"
+  }
+}
