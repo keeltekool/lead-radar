@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="240" height="48" viewBox="0 0 240 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Signal Pulse Icon -->
+  <circle cx="24" cy="24" r="5" fill="#14B8A6"/>
+  <circle cx="24" cy="24" r="12" stroke="#14B8A6" stroke-width="2.5" fill="none" opacity="0.7"/>
+  <circle cx="24" cy="24" r="20" stroke="#14B8A6" stroke-width="2" fill="none" opacity="0.35"/>
+  <!-- Wordmark -->
+  <text x="54" y="32" font-family="DM Sans, Inter, -apple-system, sans-serif" font-size="26" font-weight="700" letter-spacing="-0.5">
+    <tspan fill="#0F2B2E">Lead</tspan><tspan fill="#14B8A6">Radar</tspan>
+  </text>
+</svg>

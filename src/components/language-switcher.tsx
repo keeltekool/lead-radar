@@ -16,7 +16,7 @@ export default function LanguageSwitcher() {
   return (
     <button
       onClick={toggle}
-      className="rounded-badge border border-slate-200 px-2 py-1 text-[11px] font-semibold uppercase text-slate-500 hover:border-amber-300 hover:text-amber-700 transition-colors"
+      className="rounded-badge border border-slate-200 px-2 py-1 text-[11px] font-semibold uppercase text-slate-500 hover:border-teal-300 hover:text-teal-700 transition-colors"
     >
       {locale === "et" ? "EN" : "ET"}
     </button>

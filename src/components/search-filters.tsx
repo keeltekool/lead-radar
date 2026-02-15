@@ -14,12 +14,12 @@ interface SearchFiltersProps {
 }
 
 const selectClasses =
-  "flex h-10 w-full rounded-lg border border-amber-200 bg-white px-3 py-2.5 text-sm text-slate-800 focus:border-amber-500 focus:outline-none focus:ring-2 focus:ring-amber-500/30 disabled:cursor-not-allowed disabled:opacity-50 disabled:bg-slate-100";
+  "flex h-10 w-full rounded-lg border border-teal-200 bg-white px-3 py-2.5 text-sm text-slate-800 focus:border-teal-500 focus:outline-none focus:ring-2 focus:ring-teal-500/30 disabled:cursor-not-allowed disabled:opacity-50 disabled:bg-slate-100";
 
 const inputClasses =
-  "flex h-10 w-full rounded-lg border border-amber-200 bg-white px-3 py-2.5 text-sm text-slate-800 placeholder:text-slate-400 focus:border-amber-500 focus:outline-none focus:ring-2 focus:ring-amber-500/30 disabled:cursor-not-allowed disabled:opacity-50";
+  "flex h-10 w-full rounded-lg border border-teal-200 bg-white px-3 py-2.5 text-sm text-slate-800 placeholder:text-slate-400 focus:border-teal-500 focus:outline-none focus:ring-2 focus:ring-teal-500/30 disabled:cursor-not-allowed disabled:opacity-50";
 
-const labelClasses = "block text-xs font-medium text-slate-600 uppercase tracking-wide mb-1.5";
+const labelClasses = "block text-xs font-semibold text-slate-600 uppercase tracking-wide mb-1.5";
 
 export default function SearchFilters({ onSearch, isLoading, initialIndustry = "", initialCity = "", initialFreeText = "", onFilterChange }: SearchFiltersProps) {
   const t = useTranslations("filters");
@@ -114,7 +114,7 @@ export default function SearchFilters({ onSearch, isLoading, initialIndustry = "
             <button
               onClick={handleSearch}
               disabled={isLoading}
-              className="h-10 w-full rounded-lg bg-amber-900 px-6 text-sm font-semibold text-white transition-colors hover:bg-amber-800 active:bg-amber-950 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="h-10 w-full rounded-lg bg-teal-950 px-6 text-sm font-semibold text-white transition-colors hover:bg-teal-900 active:bg-teal-800 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {isLoading ? t("searching") : t("search")}
             </button>

@@ -18,33 +18,28 @@ export function calculateLeadScore(place: PlaceResult): LeadScoreBreakdown {
   let serviceFit = 0;
 
   // Factor 1: Web Presence (25 pts max)
-  // Has website = in the game. No website = too cold, skip.
   if (place.websiteUri) {
-    webPresence = 15; // Base: they have a site (PageSpeed refines this later in detail view)
+    webPresence = 15;
   }
-  // If no website AND very few reviews — ghost business, score stays 0
 
   // Factor 2: Profile Completeness (25 pts max)
-  // Peaks for incomplete but existing profiles
   const photoCount = place.photos?.length ?? 0;
   if (photoCount === 0) {
-    profileCompleteness += 0; // No photos = might be ghost
+    profileCompleteness += 0;
   } else if (photoCount <= 2) {
-    profileCompleteness += 10; // Bare minimum effort
+    profileCompleteness += 10;
   } else if (photoCount <= 5) {
-    profileCompleteness += 5; // Decent but room to improve
+    profileCompleteness += 5;
   }
-  // else: 6+ photos = doing well, 0 pts
 
   if (!place.regularOpeningHours) {
-    profileCompleteness += 5; // Didn't bother listing hours
+    profileCompleteness += 5;
   }
 
   if (!place.editorialSummary) {
-    profileCompleteness += 5; // No editorial summary = basic profile
+    profileCompleteness += 5;
   }
 
-  // Phone exists but profile otherwise sparse = they're trying
   if (place.nationalPhoneNumber && photoCount <= 3) {
     profileCompleteness += 5;
   }
@@ -52,28 +47,23 @@ export function calculateLeadScore(place: PlaceResult): LeadScoreBreakdown {
   profileCompleteness = Math.min(profileCompleteness, 25);
 
   // Factor 3: Review Health (25 pts max)
-  // Sweet spot: 3.0-4.2 rating with few reviews
   const rating = place.rating ?? 0;
   const reviewCount = place.userRatingCount ?? 0;
 
   if (reviewCount === 0) {
-    reviewHealth = 0; // Ghost — too cold
+    reviewHealth = 0;
   } else {
-    // Rating sweet spot
     if (rating >= 3.0 && rating <= 4.2) {
-      reviewHealth += 15; // Fixable, not hopeless
+      reviewHealth += 15;
     } else if (rating < 3.0 && rating > 0) {
-      reviewHealth += 5; // Might be lost cause
+      reviewHealth += 5;
     }
-    // 4.3+ = doing fine, 0 pts
 
-    // Review count — fewer = more opportunity
     if (reviewCount >= 1 && reviewCount <= 15) {
-      reviewHealth += 10; // Underperforming
+      reviewHealth += 10;
     } else if (reviewCount >= 16 && reviewCount <= 30) {
-      reviewHealth += 5; // Moderate
+      reviewHealth += 5;
     }
-    // 30+ = well-established, 0 pts
   }
 
   reviewHealth = Math.min(reviewHealth, 25);
@@ -82,9 +72,8 @@ export function calculateLeadScore(place: PlaceResult): LeadScoreBreakdown {
   if (place.nationalPhoneNumber) {
     contactability += 5;
   }
-  // Email check happens later in detail analysis, give base points if website exists
   if (place.websiteUri) {
-    contactability += 10; // Likely has email on site
+    contactability += 10;
   }
 
   contactability = Math.min(contactability, 15);
@@ -113,20 +102,21 @@ export function calculateLeadScore(place: PlaceResult): LeadScoreBreakdown {
   };
 }
 
+// Brand score colors: Hot = teal, Warm = amber, Cold = slate
 export function getScoreColor(score: number): string {
-  if (score >= 60) return "text-green-600";
-  if (score >= 30) return "text-amber-600";
-  return "text-slate-400";
+  if (score >= 70) return "text-teal-500";
+  if (score >= 40) return "text-amber-600";
+  return "text-slate-500";
 }
 
 export function getScoreBgColor(score: number): string {
-  if (score >= 60) return "bg-green-50 border-green-200";
-  if (score >= 30) return "bg-amber-50 border-amber-200";
-  return "bg-slate-50 border-slate-200";
+  if (score >= 70) return "bg-teal-100 border-teal-200";
+  if (score >= 40) return "bg-amber-100 border-amber-200";
+  return "bg-slate-100 border-slate-200";
 }
 
 export function getScoreLabel(score: number): string {
-  if (score >= 60) return "Hot";
-  if (score >= 30) return "Warm";
+  if (score >= 70) return "Hot";
+  if (score >= 40) return "Warm";
   return "Cold";
 }

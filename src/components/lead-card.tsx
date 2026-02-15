@@ -52,7 +52,7 @@ export default function LeadCard({
   }
 
   return (
-    <div className="group rounded-xl border border-slate-200 bg-white shadow-card overflow-hidden transition-all duration-200 hover:border-amber-200 hover:shadow-card-hover hover:-translate-y-0.5">
+    <div className="group rounded-xl border border-slate-200 bg-white shadow-card overflow-hidden transition-all duration-200 hover:border-teal-200 hover:shadow-card-hover hover:-translate-y-0.5">
       <div className="p-4 space-y-3">
         {/* Header: Favicon/Initial + Name + Score */}
         <div className="flex items-start justify-between gap-3">
@@ -66,15 +66,15 @@ export default function LeadCard({
                 onError={(e) => { e.currentTarget.style.display = "none"; e.currentTarget.nextElementSibling?.classList.remove("hidden"); }}
               />
             ) : null}
-            <div className={`h-8 w-8 rounded-md bg-amber-100 shrink-0 mt-0.5 flex items-center justify-center text-sm font-bold text-amber-700 ${faviconUrl ? "hidden" : ""}`}>
+            <div className={`h-8 w-8 rounded-md bg-teal-100 shrink-0 mt-0.5 flex items-center justify-center text-sm font-bold text-teal-800 ${faviconUrl ? "hidden" : ""}`}>
               {initial}
             </div>
             <div className="min-w-0 flex-1">
-              <h3 className="font-semibold text-slate-900 text-[15px] truncate">
+              <h3 className="font-bold text-teal-950 text-[15px] truncate">
                 {place.displayName?.text}
               </h3>
             {typeBadge && (
-              <span className="inline-flex items-center rounded-badge bg-amber-100 px-2.5 py-0.5 text-[11px] font-medium text-amber-800 mt-1">
+              <span className="inline-flex items-center rounded-badge bg-teal-100 px-2.5 py-0.5 text-[11px] font-medium text-teal-800 mt-1">
                 {typeBadge}
               </span>
             )}
@@ -85,7 +85,7 @@ export default function LeadCard({
             <span className={`font-mono text-lg font-bold leading-none ${getScoreColor(score.total)}`}>
               {score.total}
             </span>
-            <span className={`text-[10px] font-medium ${getScoreColor(score.total)}`}>
+            <span className={`font-mono text-[10px] font-medium ${getScoreColor(score.total)}`}>
               {getScoreLabel(score.total)}
             </span>
           </div>
@@ -127,7 +127,7 @@ export default function LeadCard({
               href={place.websiteUri}
               target="_blank"
               rel="noopener noreferrer"
-              className="text-amber-600 hover:text-amber-800 truncate max-w-[180px]"
+              className="text-teal-500 hover:text-teal-700 truncate max-w-[180px]"
               onClick={(e) => e.stopPropagation()}
             >
               {place.websiteUri.replace(/^https?:\/\/(www\.)?/, "").replace(/\/$/, "")}
@@ -142,7 +142,7 @@ export default function LeadCard({
           {onViewDetails && (
             <button
               onClick={() => onViewDetails(place)}
-              className="flex-1 rounded-button border border-amber-200 px-3 py-2 text-xs font-medium text-amber-800 hover:bg-amber-50 hover:border-amber-400 transition-colors"
+              className="flex-1 rounded-button bg-teal-100 text-teal-800 px-3 py-2 text-xs font-semibold hover:bg-teal-200 transition-colors"
             >
               {t("viewDetails")}
             </button>
@@ -154,10 +154,10 @@ export default function LeadCard({
                 onToggleSave(place);
               }}
               disabled={isSaving}
-              className={`rounded-button px-3 py-2 text-xs font-medium transition-colors ${
+              className={`rounded-button px-3 py-2 text-xs font-semibold transition-colors ${
                 isSaved
-                  ? "bg-amber-100 text-amber-800 border border-amber-300 hover:bg-red-50 hover:text-red-600 hover:border-red-200"
-                  : "bg-amber-900 text-white hover:bg-amber-800"
+                  ? "bg-teal-100 text-teal-800 border border-teal-300 hover:bg-red-50 hover:text-red-600 hover:border-red-200"
+                  : "bg-teal-950 text-white hover:bg-teal-900"
               } disabled:opacity-50`}
             >
               {isSaved ? t("saved") : t("save")}

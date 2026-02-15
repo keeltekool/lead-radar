@@ -54,12 +54,10 @@ export default function SearchPage() {
   const [savedIds, setSavedIds] = useState<Set<string>>(new Set());
   const [savingId, setSavingId] = useState<string | null>(null);
 
-  // Filter state for persistence
   const [filterIndustry, setFilterIndustry] = useState(cached.current?.industry ?? "");
   const [filterCity, setFilterCity] = useState(cached.current?.city ?? "");
   const [filterFreeText, setFilterFreeText] = useState(cached.current?.freeText ?? "");
 
-  // Fetch saved lead IDs on mount (if signed in)
   useEffect(() => {
     if (!isSignedIn) return;
     fetch("/api/leads")
@@ -72,7 +70,6 @@ export default function SearchPage() {
       .catch(() => {});
   }, [isSignedIn]);
 
-  // Persist state on changes
   useEffect(() => {
     if (results.length > 0) {
       saveState({
@@ -188,15 +185,13 @@ export default function SearchPage() {
       {hasSearched && !isLoading && (
         <div className="flex items-center justify-between">
           <p className="text-sm text-slate-500">
-            {results.length > 0
-              ? `${results.length} tulemust`
-              : ""}
+            {results.length > 0 ? `${results.length} tulemust` : ""}
           </p>
           {results.length > 0 && (
             <select
               value={sortBy}
               onChange={(e) => setSortBy(e.target.value)}
-              className="text-sm border border-slate-200 rounded-lg px-3 py-1.5 text-slate-600 focus:border-amber-500 focus:outline-none"
+              className="text-sm border border-slate-200 rounded-lg px-3 py-1.5 text-slate-600 focus:border-teal-500 focus:outline-none"
             >
               <option value="scoreDesc">{tSort("scoreDesc")}</option>
               <option value="ratingAsc">{tSort("ratingAsc")}</option>
@@ -210,7 +205,7 @@ export default function SearchPage() {
       {/* Loading */}
       {isLoading && (
         <div className="flex justify-center py-12">
-          <div className="h-8 w-8 animate-spin rounded-full border-2 border-amber-500 border-t-transparent" />
+          <div className="h-8 w-8 animate-spin rounded-full border-2 border-teal-500 border-t-transparent" />
         </div>
       )}
 
@@ -233,14 +228,14 @@ export default function SearchPage() {
 
       {/* Empty state */}
       {!isLoading && hasSearched && results.length === 0 && (
-        <div className="text-center py-16">
-          <div className="mx-auto h-16 w-16 rounded-full bg-amber-50 flex items-center justify-center mb-4">
-            <svg className="h-8 w-8 text-amber-400" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
+        <div className="flex flex-col items-center justify-center py-16 px-8">
+          <div className="text-teal-300 mb-4">
+            <svg className="h-16 w-16" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z" />
             </svg>
           </div>
-          <p className="text-slate-600 font-medium">{t("noResults")}</p>
-          <p className="text-slate-400 text-sm mt-1">{t("noResultsHint")}</p>
+          <p className="text-lg font-bold text-slate-800 mb-2">{t("noResults")}</p>
+          <p className="text-sm text-slate-500 text-center max-w-md">{t("noResultsHint")}</p>
         </div>
       )}
     </div>

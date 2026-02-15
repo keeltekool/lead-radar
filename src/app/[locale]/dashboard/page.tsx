@@ -75,9 +75,9 @@ export default function DashboardPage() {
 
   const filteredLeads = leads.filter((l) => {
     const score = l.leadScore ?? 0;
-    if (filterScore === "hot") return score >= 60;
-    if (filterScore === "warm") return score >= 30 && score < 60;
-    if (filterScore === "cold") return score < 30;
+    if (filterScore === "hot") return score >= 70;
+    if (filterScore === "warm") return score >= 40 && score < 70;
+    if (filterScore === "cold") return score < 40;
     return true;
   });
 
@@ -85,14 +85,12 @@ export default function DashboardPage() {
 
   const toggleSelectAll = () => {
     if (allFilteredSelected) {
-      // Deselect all filtered
       setSelectedIds((prev) => {
         const next = new Set(prev);
         for (const l of filteredLeads) next.delete(l.placeId);
         return next;
       });
     } else {
-      // Select all filtered
       setSelectedIds((prev) => {
         const next = new Set(prev);
         for (const l of filteredLeads) next.add(l.placeId);
@@ -121,7 +119,7 @@ export default function DashboardPage() {
   if (loading) {
     return (
       <div className="flex justify-center py-20">
-        <div className="h-8 w-8 animate-spin rounded-full border-2 border-amber-500 border-t-transparent" />
+        <div className="h-8 w-8 animate-spin rounded-full border-2 border-teal-500 border-t-transparent" />
       </div>
     );
   }
@@ -129,25 +127,25 @@ export default function DashboardPage() {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h1 className="text-xl font-semibold text-slate-900">{t("title")}</h1>
+        <h1 className="text-xl font-bold text-teal-950">{t("title")}</h1>
         <div className="flex items-center gap-3">
           {/* Score filter */}
           <select
             value={filterScore}
             onChange={(e) => setFilterScore(e.target.value)}
-            className="text-sm border border-slate-200 rounded-lg px-3 py-1.5 text-slate-600 focus:border-amber-500 focus:outline-none"
+            className="text-sm border border-slate-200 rounded-lg px-3 py-1.5 text-slate-600 focus:border-teal-500 focus:outline-none"
           >
             <option value="all">{t("all")} ({leads.length})</option>
-            <option value="hot">Hot ({leads.filter((l) => (l.leadScore ?? 0) >= 60).length})</option>
-            <option value="warm">Warm ({leads.filter((l) => { const s = l.leadScore ?? 0; return s >= 30 && s < 60; }).length})</option>
-            <option value="cold">Cold ({leads.filter((l) => (l.leadScore ?? 0) < 30).length})</option>
+            <option value="hot">Hot ({leads.filter((l) => (l.leadScore ?? 0) >= 70).length})</option>
+            <option value="warm">Warm ({leads.filter((l) => { const s = l.leadScore ?? 0; return s >= 40 && s < 70; }).length})</option>
+            <option value="cold">Cold ({leads.filter((l) => (l.leadScore ?? 0) < 40).length})</option>
           </select>
 
           {/* CSV export */}
           {leads.length > 0 && (
             <a
               href="/api/leads/export"
-              className="rounded-button bg-amber-900 text-white px-4 py-1.5 text-sm font-medium hover:bg-amber-800 transition-colors"
+              className="rounded-button bg-teal-950 text-white px-4 py-1.5 text-sm font-semibold hover:bg-teal-900 transition-colors"
             >
               {t("export")}
             </a>
@@ -178,14 +176,14 @@ export default function DashboardPage() {
       )}
 
       {filteredLeads.length === 0 ? (
-        <div className="text-center py-16">
-          <div className="mx-auto h-16 w-16 rounded-full bg-amber-50 flex items-center justify-center mb-4">
-            <svg className="h-8 w-8 text-amber-400" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
+        <div className="flex flex-col items-center justify-center py-16 px-8">
+          <div className="text-teal-300 mb-4">
+            <svg className="h-16 w-16" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" d="M17.593 3.322c1.1.128 1.907 1.077 1.907 2.185V21L12 17.25 4.5 21V5.507c0-1.108.806-2.057 1.907-2.185a48.507 48.507 0 0 1 11.186 0Z" />
             </svg>
           </div>
-          <p className="text-slate-600 font-medium">{t("empty")}</p>
-          <p className="text-slate-400 text-sm mt-1">{t("emptyHint")}</p>
+          <p className="text-lg font-bold text-slate-800 mb-2">{t("empty")}</p>
+          <p className="text-sm text-slate-500 text-center max-w-md mb-6">{t("emptyHint")}</p>
         </div>
       ) : (
         <div className="rounded-xl border border-slate-200 bg-white shadow-card overflow-hidden">
@@ -197,7 +195,7 @@ export default function DashboardPage() {
                     type="checkbox"
                     checked={allFilteredSelected}
                     onChange={toggleSelectAll}
-                    className="h-4 w-4 rounded border-slate-300 text-amber-600 focus:ring-amber-500 cursor-pointer"
+                    className="h-4 w-4 rounded border-slate-300 text-teal-600 focus:ring-teal-500 cursor-pointer"
                   />
                 </th>
                 <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wide">Business</th>
@@ -212,18 +210,18 @@ export default function DashboardPage() {
                 const score = lead.leadScore ?? 0;
                 const isSelected = selectedIds.has(lead.placeId);
                 return (
-                  <tr key={lead.id} className={`transition-colors ${isSelected ? "bg-amber-50/50" : "hover:bg-amber-50/30"}`}>
+                  <tr key={lead.id} className={`transition-colors ${isSelected ? "bg-teal-50/50" : "hover:bg-teal-50/30"}`}>
                     <td className="px-3 py-3 text-center">
                       <input
                         type="checkbox"
                         checked={isSelected}
                         onChange={() => toggleSelect(lead.placeId)}
-                        className="h-4 w-4 rounded border-slate-300 text-amber-600 focus:ring-amber-500 cursor-pointer"
+                        className="h-4 w-4 rounded border-slate-300 text-teal-600 focus:ring-teal-500 cursor-pointer"
                       />
                     </td>
                     <td className="px-4 py-3">
                       <div>
-                        <p className="font-medium text-slate-900 text-sm">{lead.name}</p>
+                        <p className="font-medium text-teal-950 text-sm">{lead.name}</p>
                         <p className="text-xs text-slate-400 truncate max-w-[200px]">{lead.formattedAddress}</p>
                       </div>
                     </td>
@@ -231,7 +229,7 @@ export default function DashboardPage() {
                       {lead.emails && lead.emails.length > 0 ? (
                         <div className="space-y-0.5">
                           {lead.emails.map((email) => (
-                            <a key={email} href={`mailto:${email}`} className="block text-sm text-amber-600 hover:text-amber-800 font-medium">
+                            <a key={email} href={`mailto:${email}`} className="block text-sm text-teal-500 hover:text-teal-700 font-medium">
                               {email}
                             </a>
                           ))}
@@ -246,14 +244,14 @@ export default function DashboardPage() {
                     <td className="px-4 py-3 text-center">
                       <div className={`inline-flex flex-col items-center rounded-lg border px-2.5 py-1 ${getScoreBgColor(score)}`}>
                         <span className={`font-mono text-sm font-bold ${getScoreColor(score)}`}>{score}</span>
-                        <span className={`text-[9px] font-medium ${getScoreColor(score)}`}>{getScoreLabel(score)}</span>
+                        <span className={`font-mono text-[9px] font-medium ${getScoreColor(score)}`}>{getScoreLabel(score)}</span>
                       </div>
                     </td>
                     <td className="px-4 py-3 text-right">
                       <div className="flex items-center justify-end gap-2">
                         <button
                           onClick={() => router.push(`/lead/${lead.placeId}`)}
-                          className="text-xs text-amber-600 hover:text-amber-800 font-medium"
+                          className="text-xs text-teal-500 hover:text-teal-700 font-medium"
                         >
                           Details
                         </button>
