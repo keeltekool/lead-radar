@@ -5,6 +5,33 @@ import { savedLeads } from "@/db/schema";
 import { eq, and, desc, inArray } from "drizzle-orm";
 import { scrapeEmails } from "@/lib/scrape-emails";
 
+// PATCH — update notes on a lead
+export async function PATCH(request: NextRequest) {
+  const { userId } = await auth();
+  if (!userId) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  const body = await request.json();
+  const { placeId, notes } = body as { placeId?: string; notes?: string };
+
+  if (!placeId) {
+    return NextResponse.json({ error: "placeId required" }, { status: 400 });
+  }
+
+  const [updated] = await db
+    .update(savedLeads)
+    .set({ notes: notes ?? null, updatedAt: new Date() })
+    .where(and(eq(savedLeads.userId, userId), eq(savedLeads.placeId, placeId)))
+    .returning();
+
+  if (!updated) {
+    return NextResponse.json({ error: "Lead not found" }, { status: 404 });
+  }
+
+  return NextResponse.json({ lead: updated });
+}
+
 // GET — list saved leads for current user
 export async function GET() {
   const { userId } = await auth();

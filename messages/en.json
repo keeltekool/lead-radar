@@ -19,7 +19,11 @@
     "hasWebsite": "Has website",
     "ratingRange": "Rating",
     "reviewCount": "Review count",
-    "scoreRange": "Lead Score"
+    "scoreRange": "Lead Score",
+    "crossAllIndustries": "All industries: {city}",
+    "crossAllLocations": "One industry across all cities",
+    "crossResults": "results found",
+    "crossSearching": "Searching across all industries and locations..."
   },
   "sort": {
     "scoreDesc": "Score (highest)",
@@ -82,7 +86,16 @@
     "reviewAnalysis": "Review analysis",
     "generatePitch": "Generate pitch",
     "pitch": "Sales pitch",
-    "loading": "Loading..."
+    "loading": "Loading...",
+    "saveLead": "Save Lead",
+    "unsaveLead": "Unsave",
+    "saving": "Saving...",
+    "notes": "Notes",
+    "notesPlaceholder": "Add notes about this lead...",
+    "saveNotes": "Save",
+    "savingNotes": "Saving...",
+    "notesSaved": "Saved",
+    "sendPitch": "Send Pitch"
   },
   "dashboard": {
     "title": "Saved leads",
@@ -95,6 +108,12 @@
     "selected": "{count} selected",
     "deleteSelected": "Delete selected",
     "deleting": "Deleting...",
-    "clearSelection": "Clear"
+    "clearSelection": "Clear",
+    "notes": "Notes",
+    "editNotes": "Edit",
+    "saveNotes": "Save",
+    "cancelNotes": "Cancel",
+    "notesPlaceholder": "Add notes...",
+    "savingNotes": "Saving..."
   }
 }

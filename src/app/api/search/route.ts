@@ -22,20 +22,33 @@ const FIELD_MASK = [
   "places.googleMapsUri",
   "places.location",
   "places.reviews",
+  "nextPageToken",
 ].join(",");
 
 export async function GET(request: NextRequest) {
   const { searchParams } = request.nextUrl;
   const query = searchParams.get("q") || "";
   const location = searchParams.get("location") || "";
+  const pageToken = searchParams.get("pageToken") || "";
 
-  if (!query && !location) {
+  if (!query && !location && !pageToken) {
     return NextResponse.json({ error: "Query or location required" }, { status: 400 });
   }
 
   const textQuery = [query, location].filter(Boolean).join(" ");
 
   try {
+    const body: Record<string, unknown> = {
+      textQuery,
+      languageCode: "et",
+      pageSize: 20,
+    };
+
+    // For pagination, pass the page token
+    if (pageToken) {
+      body.pageToken = pageToken;
+    }
+
     const response = await fetch("https://places.googleapis.com/v1/places:searchText", {
       method: "POST",
       headers: {
@@ -43,11 +56,7 @@ export async function GET(request: NextRequest) {
         "X-Goog-Api-Key": PLACES_API_KEY,
         "X-Goog-FieldMask": FIELD_MASK,
       },
-      body: JSON.stringify({
-        textQuery,
-        languageCode: "et",
-        maxResultCount: 20,
-      }),
+      body: JSON.stringify(body),
     });
 
     if (!response.ok) {

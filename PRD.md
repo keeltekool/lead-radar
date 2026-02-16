@@ -87,7 +87,7 @@ Every factor maps to a real API field. Score peaks in the MIDDLE (mediocre prese
 - `pureServiceAreaBusiness` = true → +5
 - `primaryType` matches target verticals → +5
 
-**Total: 0-100. Score 60+ = hot lead. Score 30-59 = warm. Score < 30 = skip.**
+**Total: 0-100. Score 70+ = hot lead. Score 40-69 = warm. Score < 40 = skip.**
 
 ## MVP Scope
 
@@ -132,14 +132,14 @@ Every factor maps to a real API field. Score peaks in the MIDDLE (mediocre prese
 | Layer | Tech | Notes |
 |-------|------|-------|
 | Framework | Next.js 16, React 19 | Same as Prop-Radar |
-| Styling | Tailwind CSS 4 | Amber palette (not forest green, not blue) |
+| Styling | Tailwind CSS 4 | "Midnight Teal" palette (teal-950 + teal-500) |
 | Auth | Clerk | Same as Prop-Radar |
 | DB | Neon PostgreSQL + Drizzle ORM | Same as Prop-Radar |
 | AI | Anthropic Claude Sonnet | Review analysis + pitch generation |
 | APIs | Google Places API (New), PageSpeed Insights API | User has free credits |
 | Hosting | Vercel | Same as Prop-Radar |
 | i18n | next-intl (ET/EN) | Same as Prop-Radar |
-| Fonts | Inter + JetBrains Mono | Same as Prop-Radar |
+| Fonts | DM Sans + JetBrains Mono | Body + mono for scores |
 
 ## DB Schema
 
@@ -196,15 +196,18 @@ GET  /api/leads/export                         → CSV download
 
 ## Design
 
-Identical layout/component patterns as Prop-Radar, swapped to amber/warm palette:
+"Midnight Teal" brand identity — custom design system in `Lead_Radar_Brand/`.
 
-- **Primary:** Amber (#F59E0B family) — accents, buttons, badges
-- **Dark:** Slate-900 with amber tints — navbar, primary buttons
+- **Primary dark:** Teal-950 (#0F2B2E) — navbar, primary buttons, headings
+- **Main accent:** Teal-500 (#14B8A6) — links, active states, hot scores
+- **Warm accent:** Amber-600 (#D97706) — warm lead scores only
 - **Background:** Slate-50
-- **Cards:** White with subtle amber-tinted shadows
-- Same border-radius tokens (card: 12px, badge: 6px, button: 8px)
-- Same font stack (Inter + JetBrains Mono)
-- Same shadow patterns
+- **Cards:** White with teal-tinted shadows (`shadow-card`)
+- **Card radius:** rounded-xl (12px), button: rounded-lg (8px)
+- **Body font:** DM Sans (400-800 weights, latin-ext for Estonian)
+- **Mono font:** JetBrains Mono (scores, stats, numbers)
+- **Logo:** LeadRadarLogo component — signal pulse icon + two-tone wordmark
+- **Score tiers:** Hot 70+ (teal), Warm 40-69 (amber), Cold 0-39 (slate)
 
 ## Milestones
 

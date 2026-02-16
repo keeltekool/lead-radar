@@ -3,7 +3,8 @@
 import { useEffect, useState, useCallback } from "react";
 import { useTranslations } from "next-intl";
 import { useParams, useRouter } from "next/navigation";
-import { calculateLeadScore, getScoreColor, getScoreBgColor, getScoreLabel } from "@/lib/scoring";
+import { useAuth } from "@clerk/nextjs";
+import { calculateLeadScore, getScoreColor, getScoreBgColor } from "@/lib/scoring";
 import type { PlaceResult, LeadScoreBreakdown } from "@/types/lead";
 
 interface PageSpeedData {
@@ -57,6 +58,7 @@ export default function LeadDetailPage() {
   const t = useTranslations("detail");
   const { placeId } = useParams<{ placeId: string }>();
   const router = useRouter();
+  const { isSignedIn } = useAuth();
 
   const [place, setPlace] = useState<PlaceResult | null>(null);
   const [score, setScore] = useState<LeadScoreBreakdown | null>(null);
@@ -66,6 +68,17 @@ export default function LeadDetailPage() {
   const [loading, setLoading] = useState(true);
   const [analyzing, setAnalyzing] = useState(false);
 
+  // Save/unsave state
+  const [isSaved, setIsSaved] = useState(false);
+  const [saving, setSaving] = useState(false);
+
+  // Notes state
+  const [notes, setNotes] = useState("");
+  const [notesInput, setNotesInput] = useState("");
+  const [editingNotes, setEditingNotes] = useState(false);
+  const [savingNotes, setSavingNotes] = useState(false);
+
+  // Fetch place details
   useEffect(() => {
     async function fetchDetails() {
       try {
@@ -85,6 +98,92 @@ export default function LeadDetailPage() {
     }
     fetchDetails();
   }, [placeId]);
+
+  // Check saved status + cached analysis (when signed in)
+  useEffect(() => {
+    if (!isSignedIn || loading) return;
+
+    // Check if this lead is saved
+    fetch("/api/leads")
+      .then((r) => r.json())
+      .then((data) => {
+        const saved = (data.leads || []).find(
+          (l: { placeId: string; notes: string | null }) => l.placeId === placeId
+        );
+        if (saved) {
+          setIsSaved(true);
+          setNotes(saved.notes || "");
+          setNotesInput(saved.notes || "");
+        }
+      })
+      .catch(() => {});
+
+    // Check for cached AI analysis
+    fetch(`/api/lead/${placeId}/analyze`)
+      .then((r) => r.json())
+      .then((data) => {
+        if (data.cached && data.reviewSummary) {
+          setAiAnalysis({ reviewSummary: data.reviewSummary, aiPitch: data.aiPitch });
+        }
+      })
+      .catch(() => {});
+  }, [isSignedIn, loading, placeId]);
+
+  const handleSave = useCallback(async () => {
+    if (!place || !score) return;
+    setSaving(true);
+    try {
+      const res = await fetch("/api/leads", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ place, leadScore: score.total }),
+      });
+      if (res.ok || res.status === 409) {
+        setIsSaved(true);
+      }
+    } catch (err) {
+      console.error("Save failed:", err);
+    } finally {
+      setSaving(false);
+    }
+  }, [place, score]);
+
+  const handleUnsave = useCallback(async () => {
+    setSaving(true);
+    try {
+      await fetch("/api/leads", {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ placeId }),
+      });
+      setIsSaved(false);
+      setNotes("");
+      setNotesInput("");
+    } catch (err) {
+      console.error("Unsave failed:", err);
+    } finally {
+      setSaving(false);
+    }
+  }, [placeId]);
+
+  const handleSaveNotes = useCallback(async () => {
+    setSavingNotes(true);
+    try {
+      const res = await fetch("/api/leads", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ placeId, notes: notesInput || null }),
+      });
+      if (res.ok) {
+        setNotes(notesInput);
+        setEditingNotes(false);
+      }
+    } catch (err) {
+      console.error("Save notes failed:", err);
+    } finally {
+      setSavingNotes(false);
+    }
+  }, [placeId, notesInput]);
 
   const runAnalysis = useCallback(async () => {
     if (!place) return;
@@ -144,9 +243,33 @@ export default function LeadDetailPage() {
             )}
             <p className="text-slate-500 mt-2">{place.formattedAddress}</p>
           </div>
-          <div className={`flex flex-col items-center rounded-xl border px-5 py-3 ${getScoreBgColor(score.total)}`}>
-            <span className={`font-mono text-4xl font-bold ${getScoreColor(score.total)}`}>{score.total}</span>
-            <span className={`font-mono text-xs font-medium ${getScoreColor(score.total)}`}>/100</span>
+          <div className="flex items-start gap-3">
+            {/* Save/Unsave button */}
+            {isSignedIn && (
+              <button
+                onClick={isSaved ? handleUnsave : handleSave}
+                disabled={saving}
+                className={`flex items-center gap-1.5 rounded-lg px-4 py-2.5 text-sm font-semibold transition-colors disabled:opacity-50 ${
+                  isSaved
+                    ? "border border-red-200 bg-red-50 text-red-600 hover:bg-red-100"
+                    : "border border-teal-200 bg-teal-50 text-teal-700 hover:bg-teal-100"
+                }`}
+              >
+                {saving ? (
+                  <div className="h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
+                ) : (
+                  <svg className="h-4 w-4" fill={isSaved ? "currentColor" : "none"} viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M17.593 3.322c1.1.128 1.907 1.077 1.907 2.185V21L12 17.25 4.5 21V5.507c0-1.108.806-2.057 1.907-2.185a48.507 48.507 0 0 1 11.186 0Z" />
+                  </svg>
+                )}
+                {saving ? t("saving") : isSaved ? t("unsaveLead") : t("saveLead")}
+              </button>
+            )}
+            {/* Score badge */}
+            <div className={`flex flex-col items-center rounded-xl border px-5 py-3 ${getScoreBgColor(score.total)}`}>
+              <span className={`font-mono text-4xl font-bold ${getScoreColor(score.total)}`}>{score.total}</span>
+              <span className={`font-mono text-xs font-medium ${getScoreColor(score.total)}`}>/100</span>
+            </div>
           </div>
         </div>
 
@@ -286,11 +409,58 @@ export default function LeadDetailPage() {
         </div>
       </div>
 
+      {/* Notes Section (only when saved) */}
+      {isSignedIn && isSaved && (
+        <div className="rounded-xl border border-slate-200 bg-white shadow-card p-6 space-y-3">
+          <div className="flex items-center justify-between">
+            <h2 className="text-sm font-semibold text-teal-950 uppercase tracking-wide">{t("notes")}</h2>
+            {!editingNotes && (
+              <button
+                onClick={() => { setNotesInput(notes); setEditingNotes(true); }}
+                className="text-xs text-teal-500 hover:text-teal-700 font-medium"
+              >
+                {notes ? "Edit" : "Add notes"}
+              </button>
+            )}
+          </div>
+          {editingNotes ? (
+            <div className="space-y-2">
+              <textarea
+                value={notesInput}
+                onChange={(e) => setNotesInput(e.target.value)}
+                placeholder={t("notesPlaceholder")}
+                rows={3}
+                className="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm text-slate-700 placeholder:text-slate-400 focus:border-teal-500 focus:outline-none resize-none"
+              />
+              <div className="flex gap-2 justify-end">
+                <button
+                  onClick={() => { setNotesInput(notes); setEditingNotes(false); }}
+                  className="rounded-lg px-3 py-1.5 text-xs font-medium text-slate-500 hover:text-slate-700"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handleSaveNotes}
+                  disabled={savingNotes}
+                  className="rounded-lg bg-teal-950 px-4 py-1.5 text-xs font-semibold text-white hover:bg-teal-900 transition-colors disabled:opacity-50"
+                >
+                  {savingNotes ? t("savingNotes") : t("saveNotes")}
+                </button>
+              </div>
+            </div>
+          ) : notes ? (
+            <p className="text-sm text-slate-600 whitespace-pre-line">{notes}</p>
+          ) : (
+            <p className="text-sm text-slate-400 italic">{t("notesPlaceholder")}</p>
+          )}
+        </div>
+      )}
+
       {/* AI Analysis Section */}
       <div className="rounded-xl border border-slate-200 bg-white shadow-card p-6 space-y-4">
         <div className="flex items-center justify-between">
           <h2 className="text-sm font-semibold text-teal-950 uppercase tracking-wide">{t("aiAnalysis")}</h2>
-          {!aiAnalysis && (
+          {!aiAnalysis && isSignedIn && (
             <button
               onClick={runAnalysis}
               disabled={analyzing}
@@ -319,10 +489,29 @@ export default function LeadDetailPage() {
               <div className="rounded-xl bg-teal-50 border border-teal-200 p-5">
                 <p className="text-sm text-slate-700 leading-relaxed whitespace-pre-line">{aiAnalysis.aiPitch}</p>
               </div>
+              {/* One-click email with pitch */}
+              {websiteScrape?.emails && websiteScrape.emails.length > 0 && (
+                <div className="flex flex-wrap gap-2 mt-3">
+                  {websiteScrape.emails.map((email) => (
+                    <a
+                      key={email}
+                      href={`mailto:${email}?subject=${encodeURIComponent(place.displayName?.text || "")}&body=${encodeURIComponent(aiAnalysis.aiPitch)}`}
+                      className="inline-flex items-center gap-1.5 rounded-lg bg-teal-950 px-4 py-2 text-sm font-semibold text-white hover:bg-teal-900 transition-colors"
+                    >
+                      <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M21.75 6.75v10.5a2.25 2.25 0 0 1-2.25 2.25h-15a2.25 2.25 0 0 1-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0 0 19.5 4.5h-15a2.25 2.25 0 0 0-2.25 2.25m19.5 0v.243a2.25 2.25 0 0 1-1.07 1.916l-7.5 4.615a2.25 2.25 0 0 1-2.36 0L3.32 8.91a2.25 2.25 0 0 1-1.07-1.916V6.75" />
+                      </svg>
+                      {t("sendPitch")} → {email}
+                    </a>
+                  ))}
+                </div>
+              )}
             </div>
           </div>
         ) : !analyzing ? (
-          <p className="text-sm text-slate-400">{t("aiHint")}</p>
+          <p className="text-sm text-slate-400">
+            {isSignedIn ? t("aiHint") : "Sign in to generate AI analysis"}
+          </p>
         ) : null}
       </div>
     </div>

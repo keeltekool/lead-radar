@@ -1,9 +1,43 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@clerk/nextjs/server";
 import Anthropic from "@anthropic-ai/sdk";
+import { db } from "@/db";
+import { leadAnalyses } from "@/db/schema";
+import { eq, and, desc } from "drizzle-orm";
 
 const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY! });
 
+// GET — return cached analysis if exists
+export async function GET(
+  request: NextRequest,
+  { params }: { params: Promise<{ placeId: string }> }
+) {
+  const { userId } = await auth();
+  if (!userId) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  const { placeId } = await params;
+
+  const [analysis] = await db
+    .select()
+    .from(leadAnalyses)
+    .where(and(eq(leadAnalyses.placeId, placeId), eq(leadAnalyses.userId, userId)))
+    .orderBy(desc(leadAnalyses.createdAt))
+    .limit(1);
+
+  if (!analysis) {
+    return NextResponse.json({ cached: false });
+  }
+
+  return NextResponse.json({
+    cached: true,
+    reviewSummary: analysis.reviewSummary,
+    aiPitch: analysis.aiPitch,
+  });
+}
+
+// POST — generate AI analysis and persist
 export async function POST(
   request: NextRequest,
   { params }: { params: Promise<{ placeId: string }> }
@@ -13,8 +47,7 @@ export async function POST(
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  await params; // consume params
-
+  const { placeId } = await params;
   const body = await request.json();
   const { place, pageSpeed, websiteScrape } = body;
 
@@ -83,6 +116,26 @@ Write the pitch in Estonian. Keep it professional, specific, and actionable. Ref
     }
 
     const analysis = JSON.parse(jsonMatch[0]);
+
+    // Persist to lead_analyses table
+    try {
+      await db.insert(leadAnalyses).values({
+        placeId,
+        userId,
+        reviewSummary: analysis.reviewSummary,
+        aiPitch: analysis.aiPitch,
+        pagespeedPerformance: pageSpeed?.performance ?? null,
+        pagespeedSeo: pageSpeed?.seo ?? null,
+        pagespeedAccessibility: pageSpeed?.accessibility ?? null,
+        emailsFound: websiteScrape?.emails ?? null,
+        socialLinks: websiteScrape?.socialLinks ?? null,
+        siteCopyrightYear: websiteScrape?.copyrightYear ?? null,
+      });
+    } catch (dbErr) {
+      console.error("Failed to persist analysis:", dbErr);
+      // Don't fail the request — still return the analysis
+    }
+
     return NextResponse.json(analysis);
   } catch (error) {
     console.error("AI analysis error:", error);

@@ -4,8 +4,16 @@ import { useState } from "react";
 import { useTranslations, useLocale } from "next-intl";
 import { INDUSTRIES, ESTONIAN_CITIES } from "@/data/industries";
 
+export interface SearchParams {
+  query: string;
+  location: string;
+  crossMode?: "all-industries" | "all-locations" | null;
+  industryId?: string;
+  cityName?: string;
+}
+
 interface SearchFiltersProps {
-  onSearch: (filters: { query: string; location: string }) => void;
+  onSearch: (filters: SearchParams) => void;
   isLoading: boolean;
   initialIndustry?: string;
   initialCity?: string;
@@ -46,6 +54,29 @@ export default function SearchFilters({ onSearch, isLoading, initialIndustry = "
     const selectedIndustry = INDUSTRIES.find(i => i.id === industry);
     const selectedCity = ESTONIAN_CITIES.find(c => c.id === city);
 
+    // Cross-search: all industries in one city
+    if (!industry && city && !freeText.trim()) {
+      onSearch({
+        query: "",
+        location: selectedCity?.name || "",
+        crossMode: "all-industries",
+        cityName: selectedCity?.name || "",
+      });
+      return;
+    }
+
+    // Cross-search: one industry across all cities
+    if (industry && !city && !freeText.trim()) {
+      onSearch({
+        query: "",
+        location: "",
+        crossMode: "all-locations",
+        industryId: industry,
+      });
+      return;
+    }
+
+    // Normal single search
     let query = "";
     if (freeText.trim()) {
       query = freeText.trim();
@@ -57,7 +88,7 @@ export default function SearchFilters({ onSearch, isLoading, initialIndustry = "
 
     if (!query && !location) return;
 
-    onSearch({ query, location });
+    onSearch({ query, location, crossMode: null });
   };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {

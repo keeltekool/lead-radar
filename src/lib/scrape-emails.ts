@@ -28,10 +28,11 @@ async function fetchPageEmails(url: string): Promise<string[]> {
       redirect: "follow",
     });
     if (!res.ok) return [];
-    const html = await res.text();
+    let html = await res.text();
+    try { html = decodeURIComponent(html); } catch { /* keep raw */ }
 
     // Match emails in plain text and mailto: links
-    const emailRegex = /[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/g;
+    const emailRegex = /[a-zA-Z0-9._+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/g;
     const rawEmails = html.match(emailRegex) || [];
 
     return rawEmails.filter(

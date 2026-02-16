@@ -19,7 +19,11 @@
     "hasWebsite": "Veebileht olemas",
     "ratingRange": "Hinnang",
     "reviewCount": "Arvustuste arv",
-    "scoreRange": "Lead Score"
+    "scoreRange": "Lead Score",
+    "crossAllIndustries": "Kõik valdkonnad: {city}",
+    "crossAllLocations": "Üks valdkond kõigis linnades",
+    "crossResults": "tulemust leitud",
+    "crossSearching": "Otsin kõigist valdkondadest ja asukohtadest..."
   },
   "sort": {
     "scoreDesc": "Score (kõrgeim)",
@@ -82,7 +86,16 @@
     "reviewAnalysis": "Arvustuste analüüs",
     "generatePitch": "Genereeri müügitekst",
     "pitch": "Müügitekst",
-    "loading": "Laadin..."
+    "loading": "Laadin...",
+    "saveLead": "Salvesta lead",
+    "unsaveLead": "Eemalda",
+    "saving": "Salvestan...",
+    "notes": "Märkmed",
+    "notesPlaceholder": "Lisa märkmeid selle leadi kohta...",
+    "saveNotes": "Salvesta",
+    "savingNotes": "Salvestan...",
+    "notesSaved": "Salvestatud",
+    "sendPitch": "Saada pakkumine"
   },
   "dashboard": {
     "title": "Salvestatud leadid",
@@ -95,6 +108,12 @@
     "selected": "{count} valitud",
     "deleteSelected": "Kustuta valitud",
     "deleting": "Kustutan...",
-    "clearSelection": "Tühista"
+    "clearSelection": "Tühista",
+    "notes": "Märkmed",
+    "editNotes": "Muuda",
+    "saveNotes": "Salvesta",
+    "cancelNotes": "Tühista valik",
+    "notesPlaceholder": "Lisa märkmeid...",
+    "savingNotes": "Salvestan..."
   }
 }

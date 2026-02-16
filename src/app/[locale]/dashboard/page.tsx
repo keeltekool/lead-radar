@@ -33,6 +33,11 @@ export default function DashboardPage() {
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [deleting, setDeleting] = useState(false);
 
+  // Notes inline editing
+  const [editingNotesId, setEditingNotesId] = useState<string | null>(null);
+  const [notesInput, setNotesInput] = useState("");
+  const [savingNotes, setSavingNotes] = useState(false);
+
   useEffect(() => {
     if (!isSignedIn) {
       setLoading(false);
@@ -72,6 +77,27 @@ export default function DashboardPage() {
     setSelectedIds(new Set());
     setDeleting(false);
   }, [selectedIds]);
+
+  const handleSaveNotes = useCallback(async (placeId: string) => {
+    setSavingNotes(true);
+    try {
+      const res = await fetch("/api/leads", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ placeId, notes: notesInput || null }),
+      });
+      if (res.ok) {
+        setLeads((prev) =>
+          prev.map((l) => l.placeId === placeId ? { ...l, notes: notesInput || null } : l)
+        );
+        setEditingNotesId(null);
+      }
+    } catch {
+      // silent
+    } finally {
+      setSavingNotes(false);
+    }
+  }, [notesInput]);
 
   const filteredLeads = leads.filter((l) => {
     const score = l.leadScore ?? 0;
@@ -200,6 +226,7 @@ export default function DashboardPage() {
                 </th>
                 <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wide">Business</th>
                 <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wide">Email</th>
+                <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wide hidden md:table-cell">{t("notes")}</th>
                 <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wide hidden sm:table-cell">Phone</th>
                 <th className="px-4 py-3 text-center text-xs font-medium text-slate-500 uppercase tracking-wide">Score</th>
                 <th className="px-4 py-3 text-right text-xs font-medium text-slate-500 uppercase tracking-wide">Actions</th>
@@ -209,6 +236,7 @@ export default function DashboardPage() {
               {filteredLeads.map((lead) => {
                 const score = lead.leadScore ?? 0;
                 const isSelected = selectedIds.has(lead.placeId);
+                const isEditingThis = editingNotesId === lead.placeId;
                 return (
                   <tr key={lead.id} className={`transition-colors ${isSelected ? "bg-teal-50/50" : "hover:bg-teal-50/30"}`}>
                     <td className="px-3 py-3 text-center">
@@ -235,11 +263,51 @@ export default function DashboardPage() {
                           ))}
                         </div>
                       ) : (
-                        <span className="text-xs text-slate-300">—</span>
+                        <span className="text-xs text-slate-300">&mdash;</span>
+                      )}
+                    </td>
+                    <td className="px-4 py-3 hidden md:table-cell max-w-[200px]">
+                      {isEditingThis ? (
+                        <div className="space-y-1">
+                          <textarea
+                            value={notesInput}
+                            onChange={(e) => setNotesInput(e.target.value)}
+                            placeholder={t("notesPlaceholder")}
+                            rows={2}
+                            className="w-full rounded border border-slate-200 px-2 py-1 text-xs text-slate-700 placeholder:text-slate-400 focus:border-teal-500 focus:outline-none resize-none"
+                            autoFocus
+                          />
+                          <div className="flex gap-1">
+                            <button
+                              onClick={() => handleSaveNotes(lead.placeId)}
+                              disabled={savingNotes}
+                              className="rounded bg-teal-950 px-2 py-0.5 text-[10px] font-semibold text-white hover:bg-teal-900 disabled:opacity-50"
+                            >
+                              {savingNotes ? t("savingNotes") : t("saveNotes")}
+                            </button>
+                            <button
+                              onClick={() => setEditingNotesId(null)}
+                              className="rounded px-2 py-0.5 text-[10px] font-medium text-slate-500 hover:text-slate-700"
+                            >
+                              {t("cancelNotes")}
+                            </button>
+                          </div>
+                        </div>
+                      ) : (
+                        <div
+                          onClick={() => { setEditingNotesId(lead.placeId); setNotesInput(lead.notes || ""); }}
+                          className="cursor-pointer group"
+                        >
+                          {lead.notes ? (
+                            <p className="text-xs text-slate-600 line-clamp-2 group-hover:text-teal-600">{lead.notes}</p>
+                          ) : (
+                            <span className="text-xs text-slate-300 group-hover:text-teal-400 italic">{t("notesPlaceholder")}</span>
+                          )}
+                        </div>
                       )}
                     </td>
                     <td className="px-4 py-3 hidden sm:table-cell">
-                      <span className="text-xs text-slate-600">{lead.phone || "—"}</span>
+                      <span className="text-xs text-slate-600">{lead.phone || "\u2014"}</span>
                     </td>
                     <td className="px-4 py-3 text-center">
                       <div className={`inline-flex flex-col items-center rounded-lg border px-2.5 py-1 ${getScoreBgColor(score)}`}>

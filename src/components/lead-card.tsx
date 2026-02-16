@@ -4,6 +4,11 @@ import type { PlaceResult, LeadScoreBreakdown } from "@/types/lead";
 import { useTranslations } from "next-intl";
 import { getScoreColor, getScoreBgColor, getScoreLabel } from "@/lib/scoring";
 
+interface EnrichmentData {
+  pageSpeed?: { performance: number; seo: number; accessibility: number; bestPractices: number } | null;
+  emails?: string[];
+}
+
 interface LeadCardProps {
   place: PlaceResult;
   score: LeadScoreBreakdown;
@@ -11,6 +16,7 @@ interface LeadCardProps {
   onToggleSave?: (place: PlaceResult) => void;
   onViewDetails?: (place: PlaceResult) => void;
   savingId?: string | null;
+  enrichment?: EnrichmentData;
 }
 
 const TYPE_LABELS: Record<string, string> = {
@@ -38,6 +44,7 @@ export default function LeadCard({
   onToggleSave,
   onViewDetails,
   savingId,
+  enrichment,
 }: LeadCardProps) {
   const t = useTranslations("lead");
   const isSaving = savingId === place.id;
@@ -136,6 +143,25 @@ export default function LeadCard({
             <span className="text-red-400 text-xs">{t("noWebsite")}</span>
           )}
         </div>
+
+        {/* Enrichment data */}
+        {enrichment && (
+          <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs">
+            {enrichment.pageSpeed && (
+              <span className="text-slate-500">
+                PageSpeed: <span className={`font-mono font-semibold ${enrichment.pageSpeed.performance >= 50 ? "text-green-600" : "text-red-500"}`}>{enrichment.pageSpeed.performance}</span>
+              </span>
+            )}
+            {enrichment.emails && enrichment.emails.length > 0 && (
+              <span className="text-teal-600 font-medium truncate max-w-[200px]">
+                {enrichment.emails[0]}
+              </span>
+            )}
+            {enrichment.emails && enrichment.emails.length === 0 && (
+              <span className="text-slate-300">No email</span>
+            )}
+          </div>
+        )}
 
         {/* Actions */}
         <div className="flex items-center gap-2 pt-1">
